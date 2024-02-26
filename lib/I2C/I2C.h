@@ -16,9 +16,9 @@ typedef enum
 
 int i2c_init(int SDA_PIN, int SCL_PIN, int FREQ, i2c_mode MODE);
 
-int i2c_send(int DATA, i2c_mode MODE);
+int i2c_send(const uint8_t *data, i2c_mode MODE);
 
-int i2c_read(uint8_t* BUFF);
+int i2c_read(uint8_t *buffer);
 
 
 
