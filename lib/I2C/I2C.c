@@ -1,5 +1,7 @@
 #include "I2C.h"
 #include "esp_log.h"
+#include "stdio.h"
+#include "string.h"
 
 int i2c_init(int SDA_PIN, int SCL_PIN, int FREQ, i2c_mode MODE)
 {
@@ -34,6 +36,9 @@ int i2c_init(int SDA_PIN, int SCL_PIN, int FREQ, i2c_mode MODE)
         .master.clk_speed = FREQ,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .slave.addr_10bit_en = 0,
+        .slave.slave_addr = 0x55,
+        .clk_flags = 0
     };
     esp_err_t get_ret;
 
@@ -50,7 +55,7 @@ int i2c_send(const uint8_t *data, i2c_mode MODE)
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, 0x0A<< I2C_MASTER_WRITE , true);
+    i2c_master_write_byte(cmd, (0x55<< 1)| I2C_MASTER_WRITE , true);
     i2c_master_write(cmd, data, 5, true);
     i2c_master_stop(cmd);
     i2c_master_cmd_begin(I2C_PORT, cmd, 1000/ portTICK_PERIOD_MS);
@@ -60,8 +65,12 @@ int i2c_send(const uint8_t *data, i2c_mode MODE)
 
 int i2c_read(uint8_t *buffer)
 {
-    i2c_slave_read_buffer(I2C_PORT, buffer, 6, 20/ portTICK_PERIOD_MS);
-    i2c_reset_rx_fifo(I2C_PORT);
-    ESP_LOGI("Dado recebido", "%s\n", buffer);
+    if(i2c_slave_read_buffer(I2C_PORT, buffer, 6, 20/ portTICK_PERIOD_MS) > 0)
+    {
+        ESP_LOGI("Dado recebido", "%s\n", buffer);
+        i2c_reset_rx_fifo(I2C_PORT);
+        memset(buffer, 0, 6);
+    }
+    
     return 0;
 }

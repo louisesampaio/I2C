@@ -10,12 +10,11 @@ const uint8_t command[] = "hello";
 void app_main() 
 {
     i2c_init(SDA_PIN_NUM, SCL_PIN_NUM, I2C_FREQ, I2C_MASTER_MODE);
-
-    i2c_send(command, I2C_MASTER_MODE);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-
-    i2c_send(command, I2C_MASTER_MODE);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
+    while(1)
+    {
+        i2c_send(command, I2C_MASTER_MODE);
+        vTaskDelay(5000/portTICK_PERIOD_MS);
+    }
 }
 
 #endif 
